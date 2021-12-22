@@ -53,7 +53,7 @@ class SddrDataset(Dataset):
         transform: function
             convert to torch object
     '''
-    def __init__(self, data, prepare_data, target = None, unstructured_data_info=dict(), fit = True, clipping = False):
+    def __init__(self, data, prepare_data, target = None, unstructured_data_info=dict(),unstructured_tensors = dict() ,fit = True, clipping = False):
         
         try:
             # data loader for csv files
@@ -79,6 +79,7 @@ class SddrDataset(Dataset):
 
         # add file paths of unstructured features to data
         self.unstructured_data_info = unstructured_data_info
+        self.unstructured_tensors = unstructured_tensors
 
         if self.unstructured_data_info:
             # for testing with local image set uncomment here 
@@ -175,28 +176,29 @@ class SddrDataset(Dataset):
                                 
                                 data_len = torch.LongTensor(list(map(len, images)))
                                 data_packed = torch.nn.utils.rnn.pack_padded_sequence(data, data_len, batch_first=True, enforce_sorted=False)
-                                    
-                                #datadict[param][structured_or_net_name] = torch.cat(images)
-                                
-                                #print('init data struct')
-                                #print(torch.cat(images))
+
                                 
                                 datadict[param][structured_or_net_name] = data_packed
+                        if feat_datatype == 'torch_packed':
+                            #next step: allow selecting by index
+                            if type(index) is int:
+                                datadict[param][structured_or_net_name] = self.load_csv(root_path, data_row[cur_feature])
+                            else:
+                                images = []
+                                #file_indices = data_row[cur_feature]
+                                ts_name = self.unstructured_data_info[cur_feature]['path']
+                                images = self.unstructured_tensors[ts_name] #to find how to work with indices
+
+                                ## pad pack sequences:
+                                #data = torch.nn.utils.rnn.pad_sequence(images, batch_first=True, padding_value=-1.0)
                                 
-                                #print('padded data')
-                                #print(data)
+                                #data_len = torch.LongTensor(list(map(len, images)))
+                                #data_packed = torch.nn.utils.rnn.pack_padded_sequence(data, data_len, batch_first=True, enforce_sorted=False)
+
                                 
+                                datadict[param][structured_or_net_name] = images 
                                 
-                                #print('packed data')
-                                #print(data_packed)
-                                
-                                #print('re-padded data')
-                                #print(torch.nn.utils.rnn.pad_packed_sequence(data_packed, batch_first=True))
-                                
-                                
-                                
-                                
-                                #datadict[param][structured_or_net_name] = data_packed
+
                                                       
                                                       
                             # extend for more cases

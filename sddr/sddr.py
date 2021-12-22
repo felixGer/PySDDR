@@ -95,7 +95,7 @@ class Sddr(object):
         else:
             self.config['output_dir'] = './'
     
-    def train(self, target, structured_data, unstructured_data=dict(), resume=False, plot=False):
+    def train(self, target, structured_data, unstructured_data=dict(), unstructured_tensors = dict() , resume=False, plot=False):
         '''
         Trains the SddrNet for a number of epochs
         
@@ -128,9 +128,9 @@ class Sddr(object):
         epoch_print_interval = max(1,int(self.config['train_parameters']['epochs']/10))
         
         if resume:
-            self.dataset = SddrDataset(structured_data, self.prepare_data, target, unstructured_data, fit=False)
+            self.dataset = SddrDataset(structured_data, self.prepare_data, target, unstructured_data, unstructured_tensors, fit=False)
         else:
-            self.dataset = SddrDataset(structured_data, self.prepare_data, target, unstructured_data)
+            self.dataset = SddrDataset(structured_data, self.prepare_data, target, unstructured_data, unstructured_tensors)
             self.net = SddrNet(self.family, self.prepare_data.network_info_dict, self.p)
             self.net = self.net.to(self.device)
             self._setup_optim()
@@ -253,19 +253,17 @@ class Sddr(object):
             self.epoch_train_loss = 0
             
             for batch in self.train_loader:
-                time1 = time.time()
-                 #to delete
+
                 # for each batch
                 #
+                
                 if self.config['train_parameters']['Full_Batch_Training'] == True:
-                    target = train[batch]['target'].float().to(self.device)
-                    datadict =  train[batch]['datadict']
+                    target = self.dataset.__getitem__(batch)['target'].float().to(self.device)
+                    datadict =  self.dataset.__getitem__(batch)['datadict']
+
                 else: 
                     target = batch['target'].float().to(self.device)
                     datadict =  batch['datadict']
-                time2 = time.time()
-                
-                print('dataloading time im sec', time2 -time1 )
                 
                
                 
@@ -273,9 +271,7 @@ class Sddr(object):
                 for param in datadict.keys():
                     for data_part in datadict[param].keys():
                         datadict[param][data_part] = datadict[param][data_part].float().to(self.device)
-                time22 = time.time()
-                print('send batch to curren devvice time', time22 -time2 )
-                        
+
                 # get the network output
                 self.optimizer.zero_grad()
                 output = self.net(datadict)
@@ -288,8 +284,7 @@ class Sddr(object):
                 loss.backward()
                 self.optimizer.step()
                 self.epoch_train_loss += loss.item()
-                time3 = time.time()
-                print('time for training', time3- time2)
+
             # compute the avg loss over all batches in the epoch
             self.epoch_train_loss = self.epoch_train_loss/len(self.train_loader)
             if epoch % epoch_print_interval == 0:
