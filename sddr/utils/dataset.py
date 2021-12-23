@@ -184,6 +184,7 @@ class SddrDataset(Dataset):
                             if type(index) is int:
                                 datadict[param][structured_or_net_name] = self.load_csv(root_path, data_row[cur_feature])
                             else:
+                                print('test')
                                 images = []
                                 #file_indices = data_row[cur_feature]
                                 ts_name = self.unstructured_data_info[cur_feature]['path']
