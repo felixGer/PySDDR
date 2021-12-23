@@ -203,22 +203,16 @@ class SddrDataset(Dataset):
                             if type(index) is int:
                                 datadict[param][structured_or_net_name] = self.load_csv(root_path, data_row[cur_feature])
                             else:
-                                images = []
-                                #file_indices = data_row[cur_feature]
+                                
+                                file_indices = torch.Tensor(data_row[cur_feature].to_numpy())
+                                
                                 ts_name = self.unstructured_data_info[cur_feature]['path']
-                                images = self.unstructured_tensors[ts_name] #to find how to work with indices
+                                images = torch.index_select(self.unstructured_tensors[ts_name], 0,  file_indices) #to find how to work with indices
                                 
                                 data_len = torch.LongTensor(list(map(len, images)))
                                 x_padded = torch.nn.utils.rnn.pad_sequence(images)
                                 x_packed = torch.nn.utils.rnn.pack_padded_sequence(x_padded, data_len, batch_first=False, enforce_sorted=False)
                                 
-
-                                ## pad pack sequences:
-                                #data = torch.nn.utils.rnn.pad_sequence(images, batch_first=True, padding_value=-1.0)
-                                
-                                #data_len = torch.LongTensor(list(map(len, images)))
-                                #data_packed = torch.nn.utils.rnn.pack_padded_sequence(data, data_len, batch_first=True, enforce_sorted=False)
-
                                 
                                 datadict[param][structured_or_net_name] = x_packed
                                 
