@@ -202,7 +202,9 @@ class SddrDataset(Dataset):
                             #next step: allow selecting by index
                             if type(index) is int:
                                 datadict[param][structured_or_net_name] = self.load_csv(root_path, data_row[cur_feature])
+                                print('one by one')
                             else:
+                                print('test')
                                 print(data_row)
                                 file_indices = torch.Tensor(data_row[cur_feature].to_numpy())
                                 print(file_indices)
