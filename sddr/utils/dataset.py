@@ -198,6 +198,30 @@ class SddrDataset(Dataset):
                                 
                                 datadict[param][structured_or_net_name] = images 
                                 
+                        if feat_datatype == 'torch':
+                            #next step: allow selecting by index
+                            if type(index) is int:
+                                datadict[param][structured_or_net_name] = self.load_csv(root_path, data_row[cur_feature])
+                            else:
+                                images = []
+                                #file_indices = data_row[cur_feature]
+                                ts_name = self.unstructured_data_info[cur_feature]['path']
+                                images = self.unstructured_tensors[ts_name] #to find how to work with indices
+                                
+                                data_len = torch.LongTensor(list(map(len, images)))
+                                x_padded = torch.nn.utils.rnn.pad_sequence(images)
+                                x_packed = torch.nn.utils.rnn.pack_padded_sequence(x_padded, data_len, batch_first=False, enforce_sorted=False)
+                                
+
+                                ## pad pack sequences:
+                                #data = torch.nn.utils.rnn.pad_sequence(images, batch_first=True, padding_value=-1.0)
+                                
+                                #data_len = torch.LongTensor(list(map(len, images)))
+                                #data_packed = torch.nn.utils.rnn.pack_padded_sequence(data, data_len, batch_first=True, enforce_sorted=False)
+
+                                
+                                datadict[param][structured_or_net_name] = images 
+                                
 
                                                       
                                                       
