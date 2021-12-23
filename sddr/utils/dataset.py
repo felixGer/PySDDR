@@ -205,10 +205,11 @@ class SddrDataset(Dataset):
                             else:
                                 
                                 file_indices = torch.Tensor(data_row[cur_feature].to_numpy())
+                                print(file_indices)
                                 
                                 ts_name = self.unstructured_data_info[cur_feature]['path']
                                 images = torch.index_select(self.unstructured_tensors[ts_name], 0,  file_indices) #to find how to work with indices
-                                
+                                print(images)
                                 data_len = torch.LongTensor(list(map(len, images)))
                                 x_padded = torch.nn.utils.rnn.pad_sequence(images)
                                 x_packed = torch.nn.utils.rnn.pack_padded_sequence(x_padded, data_len, batch_first=False, enforce_sorted=False)
