@@ -102,7 +102,7 @@ class SddrFormulaNet(nn.Module):
                 time4 = time.time() # to delete
                 Q, R = torch.qr(X_sliced_with_orthogonalization_pattern)
                 time5 = time.time() # to delete
-                print('time to compute Q,R', time5- time4)
+
                 Utilde_net = self._orthog_layer(Q, Uhat_net)
                     #print(Q)
                # else:

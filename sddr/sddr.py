@@ -203,7 +203,7 @@ class Sddr(object):
             else:
                 out = batch 
             time11 = time.time()
-            print('time collate', time11 -time10)
+            
                         
 
             #print(out)
