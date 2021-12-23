@@ -203,7 +203,7 @@ class SddrDataset(Dataset):
                             if type(index) is int:
                                 datadict[param][structured_or_net_name] = self.load_csv(root_path, data_row[cur_feature])
                             else:
-                                print(data_row[cur_feature])
+                                print(data_row)
                                 file_indices = torch.Tensor(data_row[cur_feature].to_numpy())
                                 print(file_indices)
                                 
