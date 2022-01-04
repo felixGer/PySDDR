@@ -312,6 +312,7 @@ class Sddr(object):
                             datadict[param][data_part] = datadict[param][data_part].float().to(self.device)
                     _ = self.net(datadict)
                     # compute the loss and add regularization
+                    print('self.net.get_log_loss(target)[test_incides]',self.net.get_log_loss(target)[test_incides])
                     val_batch_loss = torch.mean(self.net.get_log_loss(target)[test_incides])
                     val_batch_loss += self.net.get_regularization(self.P).squeeze_() 
                     self.epoch_val_loss += val_batch_loss.item()
