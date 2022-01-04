@@ -190,7 +190,7 @@ class SddrDataset(Dataset):
                                 datadict[param][structured_or_net_name] = images 
                                 
                         if feat_datatype == 'torch':
-                            #this type should be used when data is not packed yet. Selection by index possible
+                            #this type should be used when data is not packed yet. Selection by index possible. Much slower. 
                             if type(index) is int:
                                 datadict[param][structured_or_net_name] = self.load_csv(root_path, data_row[cur_feature])
                                 print('one by one')

@@ -95,7 +95,7 @@ class Sddr(object):
         else:
             self.config['output_dir'] = './'
     
-    def train(self, target, structured_data, structured_data_test,test_indices, unstructured_data=dict(),unstructured_data_test=dict(), unstructured_tensors = dict(), resume=False, plot=False):
+    def train(self, target, structured_data, structured_data_test, unstructured_data=dict(),unstructured_data_test=dict(), unstructured_tensors = dict(), resume=False, plot=False):
         '''
         Trains the SddrNet for a number of epochs
         
@@ -136,6 +136,11 @@ class Sddr(object):
             self.net = self.net.to(self.device)
             self._setup_optim()
             self.cur_epoch = 0
+            
+        ###find test indices: 
+        structured_data_test.reset_index(inplace = True)
+        test_indices = list(structured_data_test.query("ICUSTAY_ID not in @structured_data.ICUSTAY_ID").index.values)
+        print(test_indices)
 
         # get number of train and validation samples
         # document val_split is 0.2 for e.g. 20% holdout
