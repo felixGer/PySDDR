@@ -213,7 +213,7 @@ class SddrDataset(Dataset):
                                 print(data_row)
                                 data_row_int = pd.Series(data_row[cur_feature].copy(), dtype = 'int32')
                                 
-                                file_indices = torch.Tensor(data_row_int.to_numpy(dtype='int32'))
+                                file_indices = torch.Tensor(data_row_int.to_numpy(dtype='int32'), dtype = torch.int)
                                 print(file_indices)
                                 
                                 ts_name = self.unstructured_data_info[cur_feature]['path']
