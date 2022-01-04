@@ -247,7 +247,7 @@ class Sddr(object):
             self.epoch_train_loss = 0
             
             for batch in self.train_loader:
-                print('train_batch', batch)
+                
 
                 # for each batch
                 #
@@ -296,7 +296,7 @@ class Sddr(object):
                 self.net.eval()
                 self.epoch_val_loss = 0
                 for batch in self.val_loader:
-                    print('val_batch', batch)
+                    
                     
                     if self.config['train_parameters']['Full_Batch_Training'] == True:
                         target = self.dataset_test.__getitem__(batch)['target'].float().to(self.device)
@@ -312,10 +312,9 @@ class Sddr(object):
                             datadict[param][data_part] = datadict[param][data_part].float().to(self.device)
                     _ = self.net(datadict)
                     # compute the loss and add regularization
-                    print('self.net.get_log_loss(target)[test_incides]',self.net.get_log_loss(target))
+
                     #val_batch_loss = torch.mean(self.net.get_log_loss(target))
                     #exctract only relevant indices
-                    print(self.net.get_log_loss(target).shape)
                     val_batch_loss = torch.mean(torch.index_select(self.net.get_log_loss(target).to(self.device) ,0, torch.tensor(test_indices).to(self.device)).to(self.device)) 
                     val_batch_loss += self.net.get_regularization(self.P).squeeze_() 
                     self.epoch_val_loss += val_batch_loss.item()
