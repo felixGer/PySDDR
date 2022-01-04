@@ -95,7 +95,7 @@ class Sddr(object):
         else:
             self.config['output_dir'] = './'
     
-    def train(self, target, structured_data, structured_data_test, unstructured_data=dict(),unstructured_data_test=dict(), unstructured_tensors = dict(), resume=False, plot=False):
+    def train(self, target, structured_data, structured_data_test,test_indices, unstructured_data=dict(),unstructured_data_test=dict(), unstructured_tensors = dict(), resume=False, plot=False):
         '''
         Trains the SddrNet for a number of epochs
         
@@ -313,7 +313,9 @@ class Sddr(object):
                     _ = self.net(datadict)
                     # compute the loss and add regularization
                     print('self.net.get_log_loss(target)[test_incides]',self.net.get_log_loss(target))
-                    val_batch_loss = torch.mean(self.net.get_log_loss(target))
+                    #val_batch_loss = torch.mean(self.net.get_log_loss(target))
+                    #exctract only relevant indices
+                    torch.index_select(torch.mean(self.net.get_log_loss(target)),1, torch.tensor(test_indices) ) 
                     val_batch_loss += self.net.get_regularization(self.P).squeeze_() 
                     self.epoch_val_loss += val_batch_loss.item()
                 if len(self.val_loader) !=0:
