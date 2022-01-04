@@ -208,9 +208,12 @@ class SddrDataset(Dataset):
                                 datadict[param][structured_or_net_name] = self.load_csv(root_path, data_row[cur_feature])
                                 print('one by one')
                             else:
+                                
                                 print('test')
                                 print(data_row)
-                                file_indices = torch.Tensor(data_row[cur_feature].to_numpy())
+                                data_row_int = pd.Series(data_row[cur_feature].copy(), dtype = 'int32')
+                                
+                                file_indices = torch.Tensor(data_row_int.to_numpy())
                                 print(file_indices)
                                 
                                 ts_name = self.unstructured_data_info[cur_feature]['path']
