@@ -200,10 +200,10 @@ class SddrDataset(Dataset):
                                 
                                 file_indices = torch.tensor(data_row_int.to_numpy(), dtype = torch.int32)
                                 
-                                print('file_indices',file_indices)
+                                
                                 ts_name = self.unstructured_data_info[cur_feature]['path']
                                 #images = torch.index_select(self.unstructured_tensors[ts_name], 0,  file_indices) #to find how to work with indices
-                                print('self.unstructured_tensors.keys',self.unstructured_tensors.keys())
+                                
                                 
                                 images = itemgetter(*file_indices)(self.unstructured_tensors[ts_name])
                                 
