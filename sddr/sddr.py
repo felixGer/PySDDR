@@ -275,9 +275,10 @@ class Sddr(object):
                         datadict[param][data_part] = datadict[param][data_part].float().to(self.device)
                 print('mark4')
                 # get the network output
+                print(datadict)
                 self.optimizer.zero_grad()
                 output = self.net(datadict)
-                print('mark5')
+                
                 # compute the loss and add regularization
                 loss = torch.mean(self.net.get_log_loss(target))
                 loss += self.net.get_regularization(self.P).squeeze_() 
