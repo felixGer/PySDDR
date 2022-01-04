@@ -245,6 +245,7 @@ class Sddr(object):
             self.epoch_train_loss = 0
             
             for batch in self.train_loader:
+                print('train_batch', batch)
 
                 # for each batch
                 #

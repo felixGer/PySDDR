@@ -126,7 +126,6 @@ class SddrDataset(Dataset):
     def __getitem__(self,index):
         datadict = dict()
         found_unstructred = False
-        print('index from dataloader', index)
         for param in self.prepared_data.keys():
             datadict[param] = dict()
             for structured_or_net_name in self.prepared_data[param].keys():
@@ -200,7 +199,7 @@ class SddrDataset(Dataset):
                                 data_row_int = pd.Series(data_row[cur_feature].copy(), dtype = 'int32')
                                 
                                 file_indices = torch.tensor(data_row_int.to_numpy(), dtype = torch.int32)
-                                print('file indices:', file_indices)
+                                
                                 
                                 ts_name = self.unstructured_data_info[cur_feature]['path']
                                 #images = torch.index_select(self.unstructured_tensors[ts_name], 0,  file_indices) #to find how to work with indices
