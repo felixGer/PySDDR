@@ -87,7 +87,7 @@ class Family():
             Transformed output
         '''
         pred_trafo = dict()
-        add_const = 1e-4
+        add_const = 1e-3
         
         if self.family == "Normal":
             pred_trafo["loc"] = pred["loc"]
@@ -127,7 +127,7 @@ class Family():
              ####### to do: loc, scale -> f(total count) , p(probs)
 
             #pred_trafo["probs"] = (pred["total_count"].exp()*pred["probs"].exp()) / (1 + pred["total_count"].exp()*pred["probs"].exp())
-            pred_trafo["probs"] = (pred["probs"].exp()*(1-add_const))/(pred["probs"].exp()+add_const*0.1+ pred["total_count"].exp()) 
+            pred_trafo["probs"] = (pred["probs"].exp()*(1-add_const))/(pred["probs"].exp()+ pred["total_count"].exp()) 
             #pred_trafo["total_count"] = 1/ (add_const + pred["probs"].exp())
             pred_trafo["total_count"] = pred["total_count"].exp()
 
