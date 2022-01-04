@@ -315,7 +315,7 @@ class Sddr(object):
                     print('self.net.get_log_loss(target)[test_incides]',self.net.get_log_loss(target))
                     #val_batch_loss = torch.mean(self.net.get_log_loss(target))
                     #exctract only relevant indices
-                    val_batch_loss = torch.index_select(torch.mean(self.net.get_log_loss(target)),1, torch.tensor(test_indices) ).to(self.device) 
+                    val_batch_loss = torch.index_select(torch.mean(self.net.get_log_loss(target)).to(self.device) ,1, torch.tensor(test_indices).to(self.device)).to(self.device) 
                     val_batch_loss += self.net.get_regularization(self.P).squeeze_() 
                     self.epoch_val_loss += val_batch_loss.item()
                 if len(self.val_loader) !=0:
