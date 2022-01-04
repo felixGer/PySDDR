@@ -154,7 +154,6 @@ class Sddr(object):
         # load train and val data with data loader
         
         def collate_pad(batch): 
-            time10 = time.time()
             
             if isinstance(batch, list):
             
@@ -202,7 +201,7 @@ class Sddr(object):
             
             else:
                 out = batch 
-            time11 = time.time()
+
             
                         
 
@@ -217,6 +216,7 @@ class Sddr(object):
        #                             batch_size=self.config['train_parameters']['batch_size'],
        #                             sampler = torch.utils.data.SequentialSampler(val),
        #                             num_workers=self.config['train_parameters']['num_workers'])
+        
         if self.config['train_parameters']['Full_Batch_Training'] == True:
             self.train_loader = BatchSampler(SequentialSampler(train), batch_size=self.config['train_parameters']['batch_size'], drop_last=False)
             self.val_loader = BatchSampler(SequentialSampler(val), batch_size=self.config['train_parameters']['batch_size'], drop_last=False)
@@ -256,7 +256,7 @@ class Sddr(object):
 
                 # for each batch
                 #
-                
+                print('mark1')
                 if self.config['train_parameters']['Full_Batch_Training'] == True:
                     target = self.dataset.__getitem__(batch)['target'].float().to(self.device)
                     datadict =  self.dataset.__getitem__(batch)['datadict']
@@ -266,12 +266,14 @@ class Sddr(object):
                     datadict =  batch['datadict']
                 
                
-                
+                print('mark2')
                 # send each input batch to the current device
                 for param in datadict.keys():
+                    print('mark param', param)
                     for data_part in datadict[param].keys():
+                        print('mark data part', data_part)
                         datadict[param][data_part] = datadict[param][data_part].float().to(self.device)
-
+                print('mark4')
                 # get the network output
                 self.optimizer.zero_grad()
                 output = self.net(datadict)
