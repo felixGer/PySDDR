@@ -277,11 +277,12 @@ class Sddr(object):
                 # get the network output
                 self.optimizer.zero_grad()
                 output = self.net(datadict)
-                
+                print('mark5')
                 # compute the loss and add regularization
                 loss = torch.mean(self.net.get_log_loss(target))
                 loss += self.net.get_regularization(self.P).squeeze_() 
                 
+                print('mark6')
                 # and backprobagate
                 loss.backward()
                 self.optimizer.step()
