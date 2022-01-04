@@ -9,6 +9,9 @@ import os
 import imageio
 import numpy as np
 
+#new
+from operator import itemgetter 
+
 class SddrDataset(Dataset):
     '''
     The SDDRDataset class is used to load the data on initialization and parse the formula content of each distribution parameter. 
@@ -208,7 +211,7 @@ class SddrDataset(Dataset):
                                 datadict[param][structured_or_net_name] = self.load_csv(root_path, data_row[cur_feature])
                                 print('one by one')
                             else:
-                                
+                                #transform string to int as index
                                 print('test')
                                 print(data_row)
                                 data_row_int = pd.Series(data_row[cur_feature].copy(), dtype = 'int32')
@@ -217,7 +220,8 @@ class SddrDataset(Dataset):
                                 print(file_indices)
                                 
                                 ts_name = self.unstructured_data_info[cur_feature]['path']
-                                images = torch.index_select(self.unstructured_tensors[ts_name], 0,  file_indices) #to find how to work with indices
+                                #images = torch.index_select(self.unstructured_tensors[ts_name], 0,  file_indices) #to find how to work with indices
+                                images = itemgetter(*file_indices, self.unstructured_tensors[ts_name])
                                 print(images)
                                 data_len = torch.LongTensor(list(map(len, images)))
                                 x_padded = torch.nn.utils.rnn.pad_sequence(images)
