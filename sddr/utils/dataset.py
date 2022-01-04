@@ -204,8 +204,8 @@ class SddrDataset(Dataset):
                                 ts_name = self.unstructured_data_info[cur_feature]['path']
                                 #images = torch.index_select(self.unstructured_tensors[ts_name], 0,  file_indices) #to find how to work with indices
                                 print('self.unstructured_tensors.keys',self.unstructured_tensors.keys())
-                                Unstructured_Tensors = self.unstructured_tensors[ts_name]
-                                images = itemgetter(*file_indices)(Unstructured_Tensors)
+                                
+                                images = itemgetter(*file_indices)(self.unstructured_tensors[ts_name])
                                 
                                 data_len = torch.LongTensor(list(map(len, images)))
                                 x_padded = torch.nn.utils.rnn.pad_sequence(images)

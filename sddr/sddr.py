@@ -131,7 +131,7 @@ class Sddr(object):
             self.dataset = SddrDataset(structured_data, self.prepare_data, target, unstructured_data, unstructured_tensors, fit=False)
         else:
             self.dataset = SddrDataset(structured_data, self.prepare_data, target, unstructured_data, unstructured_tensors)
-            self.dataset_test = SddrDataset(structured_data_test, self.prepare_data, target, unstructured_data_test)
+            self.dataset_test = SddrDataset(structured_data_test, self.prepare_data, target, unstructured_data_test, unstructured_tensors)
             self.net = SddrNet(self.family, self.prepare_data.network_info_dict, self.p)
             self.net = self.net.to(self.device)
             self._setup_optim()
