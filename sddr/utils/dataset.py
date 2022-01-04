@@ -126,6 +126,7 @@ class SddrDataset(Dataset):
     def __getitem__(self,index):
         datadict = dict()
         found_unstructred = False
+        print('index from dataloader', index)
         for param in self.prepared_data.keys():
             datadict[param] = dict()
             for structured_or_net_name in self.prepared_data[param].keys():
