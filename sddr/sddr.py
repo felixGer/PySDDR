@@ -208,14 +208,6 @@ class Sddr(object):
             #print(out)
             return(out)
         
-       # self.train_loader = DataLoader(train, 
-       #                             batch_size=self.config['train_parameters']['batch_size'],
-       #                             sampler = torch.utils.data.SequentialSampler(train),
-       #                             num_workers=self.config['train_parameters']['num_workers'])
-       # self.val_loader = DataLoader(val, 
-       #                             batch_size=self.config['train_parameters']['batch_size'],
-       #                             sampler = torch.utils.data.SequentialSampler(val),
-       #                             num_workers=self.config['train_parameters']['num_workers'])
         
         if self.config['train_parameters']['Full_Batch_Training'] == True:
             self.train_loader = BatchSampler(SequentialSampler(train), batch_size=self.config['train_parameters']['batch_size'], drop_last=False)
@@ -301,6 +293,7 @@ class Sddr(object):
                 self.net.eval()
                 self.epoch_val_loss = 0
                 for batch in self.val_loader:
+                    print('val_batch', batch)
                     
                     if self.config['train_parameters']['Full_Batch_Training'] == True:
                         target = self.dataset.__getitem__(batch)['target'].float().to(self.device)
