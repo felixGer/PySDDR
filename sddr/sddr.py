@@ -95,7 +95,7 @@ class Sddr(object):
         else:
             self.config['output_dir'] = './'
     
-    def train(self, target, structured_data, unstructured_data=dict(), unstructured_tensors = dict() , resume=False, plot=False):
+    def train(self, target, target_test, structured_data, structured_data_test, unstructured_data=dict(),unstructured_data_test=dict(), unstructured_tensors = dict() , resume=False, plot=False):
         '''
         Trains the SddrNet for a number of epochs
         
@@ -131,6 +131,7 @@ class Sddr(object):
             self.dataset = SddrDataset(structured_data, self.prepare_data, target, unstructured_data, unstructured_tensors, fit=False)
         else:
             self.dataset = SddrDataset(structured_data, self.prepare_data, target, unstructured_data, unstructured_tensors)
+            self.dataset_test = SddrDataset(structured_data_test, self.prepare_data, target_test, unstructured_data_test)
             self.net = SddrNet(self.family, self.prepare_data.network_info_dict, self.p)
             self.net = self.net.to(self.device)
             self._setup_optim()
@@ -148,8 +149,8 @@ class Sddr(object):
         n_val = int(len(self.dataset) * val_split)                                                    
         n_train = len(self.dataset) - n_val
         # split the dataset randomly to train and val
-        train, val = random_split(self.dataset, [n_train, n_val])  
-
+        train, val = random_split(self.dataset, [n_train, n_val])   ### DOES NOT WORK PROPERLY WITH SEQUENTIAL SAMPLER
+    
         
 
         # load train and val data with data loader
@@ -211,8 +212,8 @@ class Sddr(object):
         
         
         if self.config['train_parameters']['Full_Batch_Training'] == True:
-            self.train_loader = BatchSampler(SequentialSampler(train), batch_size=self.config['train_parameters']['batch_size'], drop_last=False)
-            self.val_loader = BatchSampler(SequentialSampler(val), batch_size=self.config['train_parameters']['batch_size'], drop_last=False)
+            self.train_loader = BatchSampler(SequentialSampler(self.dataset), batch_size=self.config['train_parameters']['batch_size'], drop_last=False)
+            self.val_loader = BatchSampler(SequentialSampler(self.dataset_test), batch_size=self.config['train_parameters']['batch_size'], drop_last=False)
             
         else: 
             self.train_loader = DataLoader(train, 
@@ -298,8 +299,8 @@ class Sddr(object):
                     print('val_batch', batch)
                     
                     if self.config['train_parameters']['Full_Batch_Training'] == True:
-                        target = self.dataset.__getitem__(batch)['target'].float().to(self.device)
-                        datadict =  self.dataset.__getitem__(batch)['datadict']
+                        target = self.dataset_test.__getitem__(batch)['target'].float().to(self.device)
+                        datadict =  self.dataset_test.__getitem__(batch)['datadict']
                     # for each batch
                     else: 
                         target = batch['target'].float().to(self.device)
