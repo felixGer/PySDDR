@@ -301,9 +301,14 @@ class Sddr(object):
                 self.net.eval()
                 self.epoch_val_loss = 0
                 for batch in self.val_loader:
+                    
+                    if self.config['train_parameters']['Full_Batch_Training'] == True:
+                        target = self.dataset.__getitem__(batch)['target'].float().to(self.device)
+                        datadict =  self.dataset.__getitem__(batch)['datadict']
                     # for each batch
-                    target = batch['target'].float().to(self.device)
-                    datadict = batch['datadict']
+                    else: 
+                        target = batch['target'].float().to(self.device)
+                        datadict = batch['datadict']
                     
                     # send each input batch to the current device
                     for param in datadict.keys():
