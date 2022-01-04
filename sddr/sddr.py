@@ -149,8 +149,7 @@ class Sddr(object):
         n_train = len(self.dataset) - n_val
         # split the dataset randomly to train and val
         train, val = random_split(self.dataset, [n_train, n_val])  
-        print('train', train)
-        print('val', val)
+
         
 
         # load train and val data with data loader
