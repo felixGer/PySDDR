@@ -256,7 +256,7 @@ class Sddr(object):
 
                 # for each batch
                 #
-                print('mark1')
+                
                 if self.config['train_parameters']['Full_Batch_Training'] == True:
                     target = self.dataset.__getitem__(batch)['target'].float().to(self.device)
                     datadict =  self.dataset.__getitem__(batch)['datadict']
@@ -266,16 +266,16 @@ class Sddr(object):
                     datadict =  batch['datadict']
                 
                
-                print('mark2')
+                
                 # send each input batch to the current device
                 for param in datadict.keys():
-                    print('mark param', param)
+                    
                     for data_part in datadict[param].keys():
-                        print('mark data part', data_part)
+                        
                         datadict[param][data_part] = datadict[param][data_part].float().to(self.device)
-                print('mark4')
+                
                 # get the network output
-                print(datadict)
+               
                 self.optimizer.zero_grad()
                 output = self.net(datadict)
                 
@@ -283,7 +283,7 @@ class Sddr(object):
                 loss = torch.mean(self.net.get_log_loss(target))
                 loss += self.net.get_regularization(self.P).squeeze_() 
                 
-                print('mark6')
+                
                 # and backprobagate
                 loss.backward()
                 self.optimizer.step()

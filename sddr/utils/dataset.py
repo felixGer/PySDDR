@@ -127,10 +127,8 @@ class SddrDataset(Dataset):
         datadict = dict()
         found_unstructred = False
         for param in self.prepared_data.keys():
-            print('dataset param', param)
             datadict[param] = dict()
             for structured_or_net_name in self.prepared_data[param].keys():
-                print('dataset structured_or_net_name', structured_or_net_name)
                 unstructured_feat_list = []
                 # extract row from pandas data frame
                 if type(self.prepared_data[param][structured_or_net_name]) == torch.Tensor:
@@ -142,11 +140,8 @@ class SddrDataset(Dataset):
                     else:
                         feature_names = data_row.columns
                     for cur_feature in feature_names:
-                        print('dataset cur_feature', cur_feature)
                         # if there is an unstructured feature it must be read from memory so store that feature in a list
                         if cur_feature in self.unstructured_data_info.keys():
-                            print('dataset cur_feature', cur_feature)
-                            #print('self.unstructured_data_info.keys()', self.unstructured_data_info.keys())
                             unstructured_feat_list.append(cur_feature)
                             # for now we can only have one unstructured feature so if it is found break loop
                             break
@@ -154,15 +149,12 @@ class SddrDataset(Dataset):
                     if unstructured_feat_list:
                         
                         cur_feature = unstructured_feat_list[0]
-                        print('dataset unstructured_feat_list- cur_feature')
                         feat_datatype = self.unstructured_data_info[cur_feature]['datatype']
-                        print('dataset feat_datatype')
                         root_path = self.unstructured_data_info[cur_feature]['path']
                         if feat_datatype == 'image':
                             if type(index) is int:
                                 datadict[param][structured_or_net_name] = self.load_image(root_path, data_row[cur_feature])
                             else:
-                                print('loads as batch')
                                 images = []
                                 for image_file_name in data_row[cur_feature]:
                                     images.append(self.load_image(root_path, image_file_name).unsqueeze(0))
@@ -186,43 +178,33 @@ class SddrDataset(Dataset):
                                 
                                 datadict[param][structured_or_net_name] = data_packed
                         if feat_datatype == 'torch_packed':
-                            #next step: allow selecting by index
+                            #this type should be used when data is already packed. Only full batch possible
                             if type(index) is int:
                                 datadict[param][structured_or_net_name] = self.load_csv(root_path, data_row[cur_feature])
                             else:
-                                print('test')
                                 images = []
-                                #file_indices = data_row[cur_feature]
                                 ts_name = self.unstructured_data_info[cur_feature]['path']
                                 images = self.unstructured_tensors[ts_name] #to find how to work with indices
-
-                                ## pad pack sequences:
-                                #data = torch.nn.utils.rnn.pad_sequence(images, batch_first=True, padding_value=-1.0)
-                                
-                                #data_len = torch.LongTensor(list(map(len, images)))
-                                #data_packed = torch.nn.utils.rnn.pack_padded_sequence(data, data_len, batch_first=True, enforce_sorted=False)
 
                                 
                                 datadict[param][structured_or_net_name] = images 
                                 
                         if feat_datatype == 'torch':
-                            #next step: allow selecting by index
+                            #this type should be used when data is not packed yet. Selection by index possible
                             if type(index) is int:
                                 datadict[param][structured_or_net_name] = self.load_csv(root_path, data_row[cur_feature])
                                 print('one by one')
                             else:
                                 #transform string to int as index
-                                print('test')
-                                print(data_row)
                                 data_row_int = pd.Series(data_row[cur_feature].copy(), dtype = 'int32')
                                 
                                 file_indices = torch.tensor(data_row_int.to_numpy(), dtype = torch.int32)
-                                print(file_indices)
+                                print('file indices:', file_indices)
                                 
                                 ts_name = self.unstructured_data_info[cur_feature]['path']
                                 #images = torch.index_select(self.unstructured_tensors[ts_name], 0,  file_indices) #to find how to work with indices
                                 images = itemgetter(*file_indices)(self.unstructured_tensors[ts_name])
-                                print(images)
+                                
                                 data_len = torch.LongTensor(list(map(len, images)))
                                 x_padded = torch.nn.utils.rnn.pad_sequence(images)
                                 x_packed = torch.nn.utils.rnn.pack_padded_sequence(x_padded, data_len, batch_first=False, enforce_sorted=False)
