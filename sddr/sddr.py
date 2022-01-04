@@ -95,7 +95,7 @@ class Sddr(object):
         else:
             self.config['output_dir'] = './'
     
-    def train(self, target, structured_data, structured_data_test, unstructured_data=dict(),unstructured_data_test=dict(), unstructured_tensors = dict(),test_incides, resume=False, plot=False):
+    def train(self, target, structured_data, structured_data_test,test_incides, unstructured_data=dict(),unstructured_data_test=dict(), unstructured_tensors = dict(), resume=False, plot=False):
         '''
         Trains the SddrNet for a number of epochs
         
