@@ -135,7 +135,7 @@ class Family():
              
             print(max(pred["probs"].exp()))
             print(min(pred["probs"].exp()))
-            print(max(pred_trafo["total_count"].exp()))
+            print(max(pred["total_count"].exp()))
             
             #pred_trafo["probs"] = (pred["total_count"].exp()*pred["probs"].exp()) / (1 + pred["total_count"].exp()*pred["probs"].exp())
             pred_trafo["probs"] = (clip(pred["probs"].exp())*(1-add_const))/(clip(pred["probs"].exp())+ clip(pred["total_count"].exp()) +0.1*add_const) 
