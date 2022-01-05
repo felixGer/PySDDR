@@ -75,6 +75,8 @@ class SddrFormulaNet(nn.Module):
         """
     
         Projection_Matrix = Q @ Q.T
+        print(min(Projection_Matrix) )
+        print(max(Projection_Matrix) )
         Utilde = Uhat - Projection_Matrix @ Uhat
         
         return Utilde
