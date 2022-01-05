@@ -73,6 +73,11 @@ class Family():
             raise ValueError('Unknown distribution')
            
         return distribution_layer_type
+    
+    def clip(ts):
+        max_val = 10e6
+        out = -(torch.relu(-ts+max_val)-max_val)
+        return(out)
         
     def get_distribution_trafos(self, pred):
         '''
@@ -127,7 +132,7 @@ class Family():
              ####### to do: loc, scale -> f(total count) , p(probs)
 
             #pred_trafo["probs"] = (pred["total_count"].exp()*pred["probs"].exp()) / (1 + pred["total_count"].exp()*pred["probs"].exp())
-            pred_trafo["probs"] = (torch.clamp(pred["probs"].exp(), 0, 10e6)*(1-add_const))/(torch.clamp(pred["probs"].exp(), 0, 10e6)+ torch.clamp(pred["total_count"].exp(), 0, 10e6) +0.1*add_const) 
+            pred_trafo["probs"] = (clip(pred["probs"].exp())*(1-add_const))/(clip(pred["probs"].exp())+ clip(pred["total_count"].exp()) +0.1*add_const) 
             #pred_trafo["total_count"] = 1/ (add_const + pred["probs"].exp())
             pred_trafo["total_count"] = pred["total_count"].exp()
 
