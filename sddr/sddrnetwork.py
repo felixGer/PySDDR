@@ -75,8 +75,8 @@ class SddrFormulaNet(nn.Module):
         """
     
         Projection_Matrix = Q @ Q.T
-        print(min(Projection_Matrix) )
-        print(max(Projection_Matrix) )
+        print(torch.min(Projection_Matrix) )
+        print(torch.max(Projection_Matrix) )
         Utilde = Uhat - Projection_Matrix @ Uhat
         
         return Utilde
@@ -106,7 +106,7 @@ class SddrFormulaNet(nn.Module):
                 
 
                 Utilde_net = self._orthog_layer(Q, Uhat_net)
-                print(Q)
+                
                # else:
                     #print('self.orthogonalization_pattern[key]')
                     #print(self.orthogonalization_pattern[key])
