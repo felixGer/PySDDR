@@ -101,12 +101,12 @@ class SddrFormulaNet(nn.Module):
                 # that contain the same input as the neural network
                 #if len(self.orthogonalization_pattern[key]) >0:
                 X_sliced_with_orthogonalization_pattern = X # torch.cat([X[:,sl] for sl in self.orthogonalization_pattern[key]],1)
-                time4 = time.time() # to delete
+                
                 Q, R = torch.qr(X_sliced_with_orthogonalization_pattern)
-                time5 = time.time() # to delete
+                
 
                 Utilde_net = self._orthog_layer(Q, Uhat_net)
-                    #print(Q)
+                print(Q)
                # else:
                     #print('self.orthogonalization_pattern[key]')
                     #print(self.orthogonalization_pattern[key])
