@@ -138,7 +138,7 @@ class Sddr(object):
             self.cur_epoch = 0
             
         ###find test indices: 
-        structured_data_test.reset_index(inplace = True)
+        structured_data_test.reset_index(drop = True, inplace = True)
         test_indices = list(structured_data_test.query("ICUSTAY_ID not in @structured_data.ICUSTAY_ID").index.values)
         print(test_indices)
 
