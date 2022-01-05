@@ -92,7 +92,7 @@ class Family():
         add_const = 1e-6
         
         def clip(ts):
-            max_val = 10e6
+            max_val = 10e40
             out = -(torch.relu(-ts+max_val)-max_val)
             return(out)
         
