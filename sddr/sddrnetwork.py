@@ -73,10 +73,8 @@ class SddrFormulaNet(nn.Module):
         """
         Utilde = Uhat - QQTUhat
         """
-    
-        Projection_Matrix = Q @ Q.T
-        print(torch.min(Projection_Matrix) )
-        print(torch.max(Projection_Matrix) )
+        
+        Projection_Matrix = Q @ Q.T / 40000 ##CHANGE
         Utilde = Uhat - Projection_Matrix @ Uhat
         
         return Utilde
