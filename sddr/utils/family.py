@@ -74,10 +74,7 @@ class Family():
            
         return distribution_layer_type
     
-    def clip(ts):
-        max_val = 10e6
-        out = -(torch.relu(-ts+max_val)-max_val)
-        return(out)
+
         
     def get_distribution_trafos(self, pred):
         '''
@@ -93,6 +90,11 @@ class Family():
         '''
         pred_trafo = dict()
         add_const = 1e-6
+        
+        def clip(ts):
+            max_val = 10e6
+            out = -(torch.relu(-ts+max_val)-max_val)
+            return(out)
         
         if self.family == "Normal":
             pred_trafo["loc"] = pred["loc"]
