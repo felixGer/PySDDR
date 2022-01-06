@@ -74,7 +74,7 @@ class SddrFormulaNet(nn.Module):
         Utilde = Uhat - QQTUhat
         """
         
-        Projection_Matrix = Q @ Q.T / 40000 ##CHANGE
+        Projection_Matrix = Q @ Q.T  #/ 40000 ##CHANGE IF VALUES GET TOO BIG
         Utilde = Uhat - Projection_Matrix @ Uhat
         
         return Utilde
