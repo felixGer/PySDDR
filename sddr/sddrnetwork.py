@@ -75,8 +75,10 @@ class SddrFormulaNet(nn.Module):
         """
         
         #Projection_Matrix = Q @ Q.T  #/ 40000 ##CHANGE IF VALUES GET TOO BIG
+        Uhat = Uhat.bfloat16()
         Utilde = Uhat - Projection_Matrix @ Uhat
         
+        Utilde = Utilde.type(torch.float)
         return Utilde
     
     
