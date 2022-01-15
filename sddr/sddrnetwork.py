@@ -73,7 +73,8 @@ class SddrFormulaNet(nn.Module):
         """
         Utilde = Uhat - QQTUhat
         """
-        
+        #try to see if possible to modify--> Are there gradients stored on projection matrix??
+        ## else check if possible to reduce to float32 or float32??
         Projection_Matrix = Q @ Q.T  #/ 40000 ##CHANGE IF VALUES GET TOO BIG
         Utilde = Uhat - Projection_Matrix @ Uhat
         
@@ -101,7 +102,8 @@ class SddrFormulaNet(nn.Module):
                 X_sliced_with_orthogonalization_pattern = X # torch.cat([X[:,sl] for sl in self.orthogonalization_pattern[key]],1)
                 
                 Q, R = torch.qr(X_sliced_with_orthogonalization_pattern)
-                
+                print('Q requires_grad?',Q.requires_grad)
+                #del R --> try out if it saves memory?
 
                 Utilde_net = self._orthog_layer(Q, Uhat_net)
                 
