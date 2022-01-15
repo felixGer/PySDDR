@@ -92,8 +92,6 @@ class SddrFormulaNet(nn.Module):
                 net = self.deep_models_dict[key]
                 
                 Uhat_net = net(datadict[key])
-                #print(key)
-                #print(datadict[key])
                 
                 # orthogonalize the output of the neural network with respect to the parts of the structured part,
                 # that contain the same input as the neural network
@@ -101,16 +99,15 @@ class SddrFormulaNet(nn.Module):
                 X_sliced_with_orthogonalization_pattern = X # torch.cat([X[:,sl] for sl in self.orthogonalization_pattern[key]],1)
                 
                 Q, R = torch.qr(X_sliced_with_orthogonalization_pattern)
-                del R
+                
+                Q = Q.bfloat16()
                 
                 Projection_Matrix = Q @ Q.T
-                del Q
-                torch.cuda.empty_cache()
-                
+               
+        
 
                 Utilde_net = self._orthog_layer(Projection_Matrix, Uhat_net)
                 
-                del Projection_Matrix
                 torch.cuda.empty_cache()
                 
                 Utilde_list.append(Utilde_net)
