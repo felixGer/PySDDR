@@ -69,12 +69,12 @@ class SddrFormulaNet(nn.Module):
         
         self.p = p     
         
-    def _orthog_layer(self, Q, Uhat):
+    def _orthog_layer(self, Projection_Matrix, Uhat):
         """
         Utilde = Uhat - QQTUhat
         """
         
-        Projection_Matrix = Q @ Q.T  #/ 40000 ##CHANGE IF VALUES GET TOO BIG
+        #Projection_Matrix = Q @ Q.T  #/ 40000 ##CHANGE IF VALUES GET TOO BIG
         Utilde = Uhat - Projection_Matrix @ Uhat
         
         return Utilde
@@ -101,14 +101,17 @@ class SddrFormulaNet(nn.Module):
                 X_sliced_with_orthogonalization_pattern = X # torch.cat([X[:,sl] for sl in self.orthogonalization_pattern[key]],1)
                 
                 Q, R = torch.qr(X_sliced_with_orthogonalization_pattern)
+                del R
+                
+                Projection_Matrix = Q @ Q.T
+                del Q
+                torch.cuda.empty_cache()
                 
 
-                Utilde_net = self._orthog_layer(Q, Uhat_net)
+                Utilde_net = self._orthog_layer(Projection_Matrix, Uhat_net)
                 
-               # else:
-                    #print('self.orthogonalization_pattern[key]')
-                    #print(self.orthogonalization_pattern[key])
-                #    Utilde_net = Uhat_net
+                del Projection_Matrix
+                torch.cuda.empty_cache()
                 
                 Utilde_list.append(Utilde_net)
             
