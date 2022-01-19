@@ -306,10 +306,6 @@ class Sddr(object):
                     if self.config['train_parameters']['Full_Batch_Training'] == True:
                         target = self.dataset_test.__getitem__(batch)['target'].float().to(self.device)
                         datadict =  self.dataset_test.__getitem__(batch)['datadict']
-                        
-                    if self.config['train_parameters']['Orthogonalization'] == False:
-                        target = self.dataset_test.__getitem__(test_indices)['target'].float().to(self.device)
-                        datadict =  self.dataset_test.__getitem__(test_indices)['datadict']
                     # for each batch
                     else: 
                         target = batch['target'].float().to(self.device)
@@ -324,11 +320,7 @@ class Sddr(object):
 
                     #val_batch_loss = torch.mean(self.net.get_log_loss(target))
                     #exctract only relevant indices
-                    if self.config['train_parameters']['Orthogonalization'] != False:
-                        val_batch_loss = torch.mean(torch.index_select(self.net.get_log_loss(target).to(self.device) ,0, torch.tensor(test_indices).to(self.device)).to(self.device)) 
-                    if self.config['train_parameters']['Orthogonalization'] == False:   
-                        val_batch_loss = torch.mean(self.net.get_log_loss(target).to(self.device)) 
-                    
+                    val_batch_loss = torch.mean(torch.index_select(self.net.get_log_loss(target).to(self.device) ,0, torch.tensor(test_indices).to(self.device)).to(self.device)) 
                     val_batch_loss += self.net.get_regularization(self.P).squeeze_() 
                     self.epoch_val_loss += val_batch_loss.item()
                 if len(self.val_loader) !=0:
