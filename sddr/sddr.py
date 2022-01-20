@@ -209,10 +209,7 @@ class Sddr(object):
             else:
                 out = batch 
 
-            
-                        
 
-            #print(out)
             return(out)
         
         
@@ -283,6 +280,7 @@ class Sddr(object):
                 loss = torch.mean(self.net.get_log_loss(target))
                 loss += self.net.get_regularization(self.P).squeeze_() 
                 
+              
                 
                 # and backprobagate
                 loss.backward()
@@ -343,7 +341,12 @@ class Sddr(object):
             if 'early_stop_epochs' in self.config['train_parameters'].keys() and early_stop_counter == self.config['train_parameters']['early_stop_epochs']:
                 print('Validation loss has not improved for the last %s epochs! To avoid overfitting we are going to stop training now'%(early_stop_counter))
                 break
-
+            
+        #save predictions
+        with torch.no_grad():
+            self.val_individual_NLL  = torch.index_select(self.net.get_log_loss(target).to(self.device), 0, torch.tensor(test_indices).to(self.device)).to(self.device)
+            self.val_individual_preds  = self.net(datadict,training=False) 
+            
         if plot:
             if plot == 'log':
                 plt.plot(np.log(train_loss_list), label='train')
