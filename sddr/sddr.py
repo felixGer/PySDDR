@@ -349,7 +349,7 @@ class Sddr(object):
             self.val_preds = dict()
             for param in datadict.keys():
                 #self.val_preds[param] = torch.index_select(vars(self.net(datadict,training=False))[param], 0, torch.tensor(test_indices).to(self.device))
-                self.val_preds[param] = torch.index_select(vars(self.net(datadict,training=False))[param], 0, torch.tensor(test_indices).cpu()).numpy()
+                self.val_preds[param] = torch.index_select(vars(self.net(datadict,training=False).cpu())[param], 0, torch.tensor(test_indices).cpu()).numpy()
                 
             
         if plot:
