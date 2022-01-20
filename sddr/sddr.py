@@ -345,7 +345,7 @@ class Sddr(object):
         #save predictions
         with torch.no_grad():
             #self.val_individual_NLL  = torch.index_select(self.net.get_log_loss(target).to(self.device), 0, torch.tensor(test_indices).to(self.device)).to(self.device)
-            self.val_individual_NLL  = torch.index_select(self.net.get_log_loss(target).cpu(), 0, torch.tensor(test_indices).cpu()).to(self.device).numpy()
+            self.val_individual_NLL  = torch.index_select(self.net.get_log_loss(target).cpu(), 0, torch.tensor(test_indices).cpu()).numpy()
             self.val_preds = dict()
             for param in datadict.keys():
                 #self.val_preds[param] = torch.index_select(vars(self.net(datadict,training=False))[param], 0, torch.tensor(test_indices).to(self.device))
