@@ -419,7 +419,7 @@ class Sddr(object):
         return(self.updated_Mean_NLL)
         
         
-    def eval(self, param, bins=10, plot=True, data=None, get_feature=None):
+    def eval(self, param, bins=10, plot=True, data=None, get_feature=None, transform = None):
         """
         Evaluates the trained SddrNet for a specific parameter of the distribution.
         Parameters
@@ -487,6 +487,7 @@ class Sddr(object):
             if self.p == 0:
                 structured_pred = torch.matmul(smoothed_structured[:,spline_slice], structured_head_params[0, spline_slice])
                 partial_effects.append((feature, structured_pred))
+                print((feature, structured_pred))
             else:
                 structured_pred_dropout = []
                 for dropout_iteration in range(1000):
