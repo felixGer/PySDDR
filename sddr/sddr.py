@@ -19,6 +19,8 @@ from .utils.family import Family
 import warnings
 import copy
 import time #to delete later
+import sklearn
+from scipy.stats import nbinom
 
 #BatchSampler
 
@@ -346,11 +348,18 @@ class Sddr(object):
         with torch.no_grad():
             #self.val_individual_NLL  = torch.index_select(self.net.get_log_loss(target).to(self.device), 0, torch.tensor(test_indices).to(self.device)).to(self.device)
             self.val_individual_NLL  = torch.index_select(self.net.get_log_loss(target).to(self.device), 0, torch.tensor(test_indices).to(self.device)).cpu().numpy()
+
+            
             self.val_preds = dict()
             for param in datadict.keys():
                 #self.val_preds[param] = torch.index_select(vars(self.net(datadict,training=False))[param], 0, torch.tensor(test_indices).to(self.device))
                 self.val_preds[param] = torch.index_select(vars(self.net(datadict,training=False))[param], 0, torch.tensor(test_indices).to(self.device)).cpu().numpy()
-                
+            
+            self.val_mean  = torch.index_select(self.net.mean.to(self.device), 0, torch.tensor(test_indices).to(self.device)).cpu().numpy()
+            self.val_target = torch.index_select(self.net.get_log_loss(target).to(self.device) ,0, torch.tensor(test_indices).to(self.device)).cpu().numpy()
+            self.val_MSE = sklearn.metrics.mean_squared_error(self.val_target.flatten(), self.val_mean.flatten())
+            self.val_median = nbinom(self.val_preds['total_count'],self.val_preds['probs'] ).median()  
+            self.val_MAD = sklearn.metrics.mean_absolute_error(self.val_target.flatten(), self.val_median.flatten())
             
         if plot:
             if plot == 'log':
