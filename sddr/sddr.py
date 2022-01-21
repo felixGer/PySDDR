@@ -139,11 +139,10 @@ class Sddr(object):
             self._setup_optim()
             self.cur_epoch = 0
             
-        ###find test indices: 
+        ###find test indices / test indices of observations remaining on the next day: 
         structured_data_test.reset_index(drop = True, inplace = True)
         test_indices = list(structured_data_test.query("ICUSTAY_ID not in @structured_data.ICUSTAY_ID").index.values)
         self.test_indices = test_indices
-        self.test_indices_next_day= structured_data_test.query("ICUSTAY_ID not in @structured_data.ICUSTAY_ID").loc[structured_data_test.remaining_los>= 1]
         print(test_indices)
 
         # get number of train and validation samples
@@ -363,7 +362,7 @@ class Sddr(object):
             self.val_median = nbinom(self.val_preds['total_count'], 1 - self.val_preds['probs'] ).median()  
             self.val_MAD = sklearn.metrics.mean_absolute_error(self.val_target.flatten(), self.val_median.flatten())
             
-             
+            
 
         if plot:
             if plot == 'log':
@@ -389,6 +388,20 @@ class Sddr(object):
         sup_value = nbinom(self.val_preds['total_count'],1- self.val_preds['probs'] ).ppf(q_sup)
         coverage = ((self.val_target >= inf_value) & (self.val_target < sup_value)).sum() / len(self.val_target)
         return(coverage)
+    
+    def predicts_next_days(self, structured_data_test, day_delta = 1):
+        
+        test_set_next_day = structured_data_test.query("ICUSTAY_ID not in @structured_data.ICUSTAY_ID").loc[structured_data_test.remaining_los>= day_delta]
+        self.test_indices_next_day = list(self.test_next_day.index.values)
+        
+        R_los = test_set_next_day.remaining_los
+        total_count = self.val_preds['total_count']
+        probs = 1 - self.val_preds['probs']
+        self.updated_NLL = -np.log(nbinom(total_count, probs).pmf(R_los) / (1 - nbinom(total_count, probs).cdf(day_delta-1)))
+        self.updated_Mean_NLL = np.mean(self.updated_NLL)
+        return(self.updated_NLL)
+        
+        
     def eval(self, param, bins=10, plot=True, data=None, get_feature=None):
         """
         Evaluates the trained SddrNet for a specific parameter of the distribution.
