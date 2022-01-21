@@ -394,7 +394,7 @@ class Sddr(object):
     def predicts_next_days(self, day_delta = 1):
         
         test_set_next_day = self.structured_data_test.query("ICUSTAY_ID not in @self.structured_data.ICUSTAY_ID").loc[self.structured_data_test.remaining_los>= day_delta]
-        self.test_indices_next_day = list(self.test_next_day.index.values)
+        self.test_indices_next_day = list(test_set_next_day.index.values)
         
         R_los = test_set_next_day.remaining_los
         total_count = self.val_preds['total_count']
