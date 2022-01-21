@@ -97,7 +97,7 @@ class Sddr(object):
         else:
             self.config['output_dir'] = './'
     
-    def train(self, target, structured_data, structured_data_test, unstructured_data=dict(),unstructured_data_test=dict(), unstructured_tensors = dict(), resume=False, plot=False):
+    def train(self, target, structured_data, structured_data_test, unstructured_data=dict(),unstructured_data_test=dict(), unstructured_tensors = dict(), resume=False,transfer_landmarking = False, plot=False):
         '''
         Trains the SddrNet for a number of epochs
         
@@ -131,6 +131,11 @@ class Sddr(object):
         
         if resume:
             self.dataset = SddrDataset(structured_data, self.prepare_data, target, unstructured_data, unstructured_tensors, fit=False)
+        
+        
+        if transfer_landmarking:
+            self.dataset = SddrDataset(structured_data, self.prepare_data, target, unstructured_data, unstructured_tensors, fit=True)
+            
         else:
             self.dataset = SddrDataset(structured_data, self.prepare_data, target, unstructured_data, unstructured_tensors)
             self.dataset_test = SddrDataset(structured_data_test, self.prepare_data, target, unstructured_data_test, unstructured_tensors)
@@ -407,7 +412,7 @@ class Sddr(object):
         probs = 1 - self.train_val_preds['probs'][self.test_indices_next_day].flatten()
         self.updated_NLL = -np.log(nbinom(total_count, probs).pmf(R_los) / (1 - nbinom(total_count, probs).cdf(day_delta-1)))
         self.updated_Mean_NLL = np.mean(self.updated_NLL)
-        return(self.updated_NLL)
+        return(self.updated_Mean_NLL)
         
         
     def eval(self, param, bins=10, plot=True, data=None, get_feature=None):
