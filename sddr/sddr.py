@@ -385,7 +385,7 @@ class Sddr(object):
     def val_coverage_rate(self, q_inf, q_sup):
         inf_value = nbinom(self.val_preds['total_count'], 1- self.val_preds['probs'] ).ppf(q_inf)
         sup_value = nbinom(self.val_preds['total_count'],1- self.val_preds['probs'] ).ppf(q_sup)
-        coverage = ((self.val_target >= inf_value) & (self.val_target <= sup_value)).sum() / len(self.val_target)
+        coverage = ((self.val_target >= inf_value) & (self.val_target < sup_value)).sum() / len(self.val_target)
         return(coverage)
     def eval(self, param, bins=10, plot=True, data=None, get_feature=None):
         """
