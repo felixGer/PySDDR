@@ -358,7 +358,7 @@ class Sddr(object):
             self.val_mean  = torch.index_select(self.net(datadict,training=False).mean.to(self.device), 0, torch.tensor(test_indices).to(self.device)).cpu().numpy()
             self.val_target = torch.index_select(self.net.get_log_loss(target).to(self.device) ,0, torch.tensor(test_indices).to(self.device)).cpu().numpy()
             self.val_MSE = sklearn.metrics.mean_squared_error(self.val_target.flatten(), self.val_mean.flatten())
-            self.val_median = nbinom(self.val_preds['total_count'],self.val_preds['probs'] ).median()  
+            self.val_median = nbinom(self.val_preds['total_count'], 1 - self.val_preds['probs'] ).median()  
             self.val_MAD = sklearn.metrics.mean_absolute_error(self.val_target.flatten(), self.val_median.flatten())
             
                 
