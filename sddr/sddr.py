@@ -133,17 +133,18 @@ class Sddr(object):
             self.dataset = SddrDataset(structured_data, self.prepare_data, target, unstructured_data, unstructured_tensors, fit=False)
             self.dataset_test = SddrDataset(structured_data_test, self.prepare_data, target, unstructured_data_test, unstructured_tensors, fit= False)
         
-        if transfer_landmarking:
-            self.dataset = SddrDataset(structured_data, self.prepare_data, target, unstructured_data, unstructured_tensors, fit=True)
-            self.dataset_test = SddrDataset(structured_data_test, self.prepare_data, target, unstructured_data_test, unstructured_tensors, fit= True)
-            
         else:
-            self.dataset = SddrDataset(structured_data, self.prepare_data, target, unstructured_data, unstructured_tensors)
-            self.dataset_test = SddrDataset(structured_data_test, self.prepare_data, target, unstructured_data_test, unstructured_tensors)
-            self.net = SddrNet(self.family, self.prepare_data.network_info_dict, self.p)
-            self.net = self.net.to(self.device)
-            self._setup_optim()
-            self.cur_epoch = 0
+            if transfer_landmarking:
+                self.dataset = SddrDataset(structured_data, self.prepare_data, target, unstructured_data, unstructured_tensors, fit=True)
+                self.dataset_test = SddrDataset(structured_data_test, self.prepare_data, target, unstructured_data_test, unstructured_tensors, fit= True)
+            
+            else:
+                self.dataset = SddrDataset(structured_data, self.prepare_data, target, unstructured_data, unstructured_tensors)
+                self.dataset_test = SddrDataset(structured_data_test, self.prepare_data, target, unstructured_data_test, unstructured_tensors)
+                self.net = SddrNet(self.family, self.prepare_data.network_info_dict, self.p)
+                self.net = self.net.to(self.device)
+                self._setup_optim()
+                self.cur_epoch = 0
             
         ###find test indices / test indices of observations remaining on the next day: 
         structured_data_test.reset_index(drop = True, inplace = True)
