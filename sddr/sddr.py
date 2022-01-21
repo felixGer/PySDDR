@@ -143,6 +143,8 @@ class Sddr(object):
         structured_data_test.reset_index(drop = True, inplace = True)
         test_indices = list(structured_data_test.query("ICUSTAY_ID not in @structured_data.ICUSTAY_ID").index.values)
         self.test_indices = test_indices
+        self.structured_data_test = structured_data_test
+        self.structured_data= structured_data
         print(test_indices)
 
         # get number of train and validation samples
@@ -389,9 +391,9 @@ class Sddr(object):
         coverage = ((self.val_target >= inf_value) & (self.val_target < sup_value)).sum() / len(self.val_target)
         return(coverage)
     
-    def predicts_next_days(self, structured_data_test, day_delta = 1):
+    def predicts_next_days(self, day_delta = 1):
         
-        test_set_next_day = structured_data_test.query("ICUSTAY_ID not in @structured_data.ICUSTAY_ID").loc[structured_data_test.remaining_los>= day_delta]
+        test_set_next_day = self.structured_data_test.query("ICUSTAY_ID not in @self.structured_data.ICUSTAY_ID").loc[self.structured_data_test.remaining_los>= day_delta]
         self.test_indices_next_day = list(self.test_next_day.index.values)
         
         R_los = test_set_next_day.remaining_los
