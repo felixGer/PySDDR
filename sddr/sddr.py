@@ -97,7 +97,7 @@ class Sddr(object):
         else:
             self.config['output_dir'] = './'
     
-    def train(self, target, structured_data, structured_data_test, unstructured_data=dict(),unstructured_data_test=dict(), unstructured_tensors = dict(), resume=False,transfer_landmarking = False, plot=False):
+    def train(self, target, structured_data, structured_data_test, unstructured_data=dict(),unstructured_data_test=dict(), unstructured_tensors = dict(), resume=False,transfer_landmarking = False,transfer_landmarking_new_optim_param = None, plot=False):
         '''
         Trains the SddrNet for a number of epochs
         
@@ -137,7 +137,9 @@ class Sddr(object):
             if transfer_landmarking:
                 self.dataset = SddrDataset(structured_data, self.prepare_data, target, unstructured_data, unstructured_tensors, fit=True)
                 self.dataset_test = SddrDataset(structured_data_test, self.prepare_data, target, unstructured_data_test, unstructured_tensors, fit= True)
-            
+                if transfer_landmarking_new_optim_param:
+                    self.config['train_parameters']['optimizer_params'] = transfer_landmarking_new_optim_param
+                    self._setup_optim()
             else:
                 self.dataset = SddrDataset(structured_data, self.prepare_data, target, unstructured_data, unstructured_tensors)
                 self.dataset_test = SddrDataset(structured_data_test, self.prepare_data, target, unstructured_data_test, unstructured_tensors)
