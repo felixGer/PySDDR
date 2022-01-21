@@ -142,6 +142,8 @@ class Sddr(object):
         ###find test indices: 
         structured_data_test.reset_index(drop = True, inplace = True)
         test_indices = list(structured_data_test.query("ICUSTAY_ID not in @structured_data.ICUSTAY_ID").index.values)
+        self.test_indices = test_indices
+        self.test_indices_next_day= structured_data_test.query("ICUSTAY_ID not in @structured_data.ICUSTAY_ID").loc[structured_data_test.remaining_los>= 1]
         print(test_indices)
 
         # get number of train and validation samples
@@ -361,7 +363,7 @@ class Sddr(object):
             self.val_median = nbinom(self.val_preds['total_count'], 1 - self.val_preds['probs'] ).median()  
             self.val_MAD = sklearn.metrics.mean_absolute_error(self.val_target.flatten(), self.val_median.flatten())
             
-                
+             
 
         if plot:
             if plot == 'log':
