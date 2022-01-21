@@ -19,7 +19,7 @@ from .utils.family import Family
 import warnings
 import copy
 import time #to delete later
-import sklearn
+import sklearn.metrics
 from scipy.stats import nbinom
 
 #BatchSampler
@@ -361,6 +361,16 @@ class Sddr(object):
             self.val_median = nbinom(self.val_preds['total_count'],self.val_preds['probs'] ).median()  
             self.val_MAD = sklearn.metrics.mean_absolute_error(self.val_target.flatten(), self.val_median.flatten())
             
+            def val_quantiles(self, q):
+                return(nbinom(self.val_preds['total_count'],self.val_preds['probs'] ).ppf(q))
+            
+            def val_coverage_rate(self, q_inf, q_sup):
+                inf_value = nbinom(self.val_preds['total_count'],self.val_preds['probs'] ).ppf(q_inf)
+                sup_value = nbinom(self.val_preds['total_count'],self.val_preds['probs'] ).ppf(q_sup)
+                coverage = ((self.val_target >= inf_value) & (self.val_target >= sup_value)).sum() / len(self.val_target)
+                return(coverage)
+                
+
         if plot:
             if plot == 'log':
                 plt.plot(np.log(train_loss_list), label='train')
