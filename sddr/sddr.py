@@ -358,6 +358,12 @@ class Sddr(object):
                 #self.val_preds[param] = torch.index_select(vars(self.net(datadict,training=False))[param], 0, torch.tensor(test_indices).to(self.device))
                 self.val_preds[param] = torch.index_select(vars(self.net(datadict,training=False))[param], 0, torch.tensor(test_indices).to(self.device)).cpu().numpy()
             
+            self.train_val_preds = dict()
+                        
+            for param in datadict.keys():
+                #self.val_preds[param] = torch.index_select(vars(self.net(datadict,training=False))[param], 0, torch.tensor(test_indices).to(self.device))
+                self.train_val_preds[param] = vars(self.net(datadict,training=False))[param].cpu().numpy()
+            
             self.val_mean  = torch.index_select(self.net(datadict,training=False).mean.to(self.device), 0, torch.tensor(test_indices).to(self.device)).cpu().numpy()
             self.val_target = torch.index_select(target.to(self.device) ,0, torch.tensor(test_indices).to(self.device)).cpu().numpy()
             self.val_MSE = sklearn.metrics.mean_squared_error(self.val_target.flatten(), self.val_mean.flatten())
@@ -397,8 +403,8 @@ class Sddr(object):
         self.test_indices_next_day = list(test_set_next_day.index.values)
         
         R_los = test_set_next_day.remaining_los
-        total_count = self.val_preds['total_count'][self.test_indices_next_day].flatten()
-        probs = 1 - self.val_preds['probs'][self.test_indices_next_day].flatten()
+        total_count = self.train_val_preds['total_count'][self.test_indices_next_day].flatten()
+        probs = 1 - self.train_val_preds['probs'][self.test_indices_next_day].flatten()
         self.updated_NLL = -np.log(nbinom(total_count, probs).pmf(R_los) / (1 - nbinom(total_count, probs).cdf(day_delta-1)))
         self.updated_Mean_NLL = np.mean(self.updated_NLL)
         return(self.updated_NLL)
