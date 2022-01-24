@@ -484,10 +484,12 @@ class Sddr(object):
                 can_plot.append(False)
                 
             # use dropout to calculate uncertainty
+            self.partial_effects_dict = dict()
             if self.p == 0:
                 structured_pred = torch.matmul(smoothed_structured[:,spline_slice], structured_head_params[0, spline_slice])
+                self.partial_effects_dict[term_name] = {'feature':feature, 'structured_pred': structured_pred }
                 partial_effects.append((feature, structured_pred))
-                print((feature, structured_pred))
+
             else:
                 structured_pred_dropout = []
                 for dropout_iteration in range(1000):
