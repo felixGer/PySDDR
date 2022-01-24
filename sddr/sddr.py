@@ -466,6 +466,7 @@ class Sddr(object):
         ylabels = []
         
         # for each spline
+        self.partial_effects_dict = dict()
         for spline_slice, spline_input_features, term_name in zip(list_of_spline_slices, list_of_spline_input_features, list_of_term_names):
             
             # if only one feature was sent as input to spline
@@ -484,7 +485,7 @@ class Sddr(object):
                 can_plot.append(False)
                 
             # use dropout to calculate uncertainty
-            self.partial_effects_dict = dict()
+            
             if self.p == 0:
                 structured_pred = torch.matmul(smoothed_structured[:,spline_slice], structured_head_params[0, spline_slice])
                 self.partial_effects_dict[term_name] = {'feature':feature, 'structured_pred': structured_pred }
