@@ -642,6 +642,9 @@ class Sddr(object):
             state_dict = torch.load(model_name)
 
         self.net = SddrNet(self.family, self.prepare_data.network_info_dict, self.p)
+        
+        #get overview of network for freezing text dnn
+        print(self.net)
 
         #self.prepare_data.set_structured_matrix_design_info(state_dict['structured_matrix_design_info'])
         #self.prepare_data.set_data_range(state_dict['data_range'])
