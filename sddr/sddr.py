@@ -391,7 +391,7 @@ class Sddr(object):
             self.val_median = nbinom(self.val_preds['total_count'], 1 - self.val_preds['probs'] ).median()  
             self.val_MAD = sklearn.metrics.mean_absolute_error(self.val_target.flatten(), self.val_median.flatten())
             self.last_improved_epoch = epoch - self.config['train_parameters']['early_stop_epochs']
-            
+            self.last_loss =  self.epoch_val_loss
 
         if plot:
             if plot == 'log':
