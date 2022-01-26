@@ -150,7 +150,9 @@ class Sddr(object):
                 
         #get overview of network for freezing text dnn
         print(self.net)
-        print(self.net.parameters())
+        for name, param in  self.net.named_parameters():
+            print(name)
+            print(param)
             
         ###find test indices / test indices of observations remaining on the next day: 
         structured_data_test.reset_index(drop = True, inplace = True)
