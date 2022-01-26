@@ -97,7 +97,7 @@ class Sddr(object):
         else:
             self.config['output_dir'] = './'
     
-    def train(self, target, structured_data, structured_data_test, unstructured_data=dict(),unstructured_data_test=dict(), unstructured_tensors = dict(), resume=False,transfer_landmarking = False,transfer_landmarking_new_optim_param = None, plot=False):
+    def train(self, target, structured_data, structured_data_test, unstructured_data=dict(),unstructured_data_test=dict(), unstructured_tensors = dict(), resume=False,transfer_landmarking = False,transfer_landmarking_new_optim_param = None, plot=False, freeze_parameters = None, show_init_params = False):
         '''
         Trains the SddrNet for a number of epochs
         
@@ -149,10 +149,14 @@ class Sddr(object):
                 self.cur_epoch = 0
                 
         #get overview of network for freezing text dnn
-        print(self.net)
-        for name, param in  self.net.named_parameters():
-            print(name)
-            print(param)
+        if show_init_params:
+            for name, param in  self.net.named_parameters():
+                print(name)
+                print(param)
+        if freeze_parameters:
+            for param in freeze_parameters:
+                self.net.get_parameter(param).requires_grad = False
+            
             
         ###find test indices / test indices of observations remaining on the next day: 
         structured_data_test.reset_index(drop = True, inplace = True)
