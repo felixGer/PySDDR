@@ -147,6 +147,9 @@ class Sddr(object):
                 self.net = self.net.to(self.device)
                 self._setup_optim()
                 self.cur_epoch = 0
+                
+        #get overview of network for freezing text dnn
+        print(self.net)
             
         ###find test indices / test indices of observations remaining on the next day: 
         structured_data_test.reset_index(drop = True, inplace = True)
@@ -643,8 +646,7 @@ class Sddr(object):
 
         self.net = SddrNet(self.family, self.prepare_data.network_info_dict, self.p)
         
-        #get overview of network for freezing text dnn
-        print(self.net)
+
 
         #self.prepare_data.set_structured_matrix_design_info(state_dict['structured_matrix_design_info'])
         #self.prepare_data.set_data_range(state_dict['data_range'])
