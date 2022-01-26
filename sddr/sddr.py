@@ -147,15 +147,17 @@ class Sddr(object):
                 self.net = self.net.to(self.device)
                 self._setup_optim()
                 self.cur_epoch = 0
+          
                 
+        if freeze_parameters:
+            for param in freeze_parameters:
+                self.net.get_parameter(param).requires_grad = False
         #get overview of network for freezing text dnn
         if show_init_params:
             for name, param in  self.net.named_parameters():
                 print(name)
                 print(param)
-        if freeze_parameters:
-            for param in freeze_parameters:
-                self.net.get_parameter(param).requires_grad = False
+
             
             
         ###find test indices / test indices of observations remaining on the next day: 
