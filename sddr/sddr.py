@@ -132,7 +132,9 @@ class Sddr(object):
         if resume:
             self.dataset = SddrDataset(structured_data, self.prepare_data, target, unstructured_data, unstructured_tensors, fit=False)
             self.dataset_test = SddrDataset(structured_data_test, self.prepare_data, target, unstructured_data_test, unstructured_tensors, fit= False)
-        
+            if transfer_landmarking_new_optim_param:
+                    self.config['train_parameters']['optimizer_params'] = transfer_landmarking_new_optim_param
+                    self._setup_optim()
         else:
             if transfer_landmarking:
                 self.dataset = SddrDataset(structured_data, self.prepare_data, target, unstructured_data, unstructured_tensors, fit=True)
