@@ -136,8 +136,6 @@ class Sddr(object):
                     self.config['train_parameters']['optimizer_params'] = transfer_landmarking_new_optim_param
                     self._setup_optim()
                     
-            if new_epochs:
-                self.config['train_parameters']['epochs'] = new_epochs
         else:
             if transfer_landmarking:
                 self.dataset = SddrDataset(structured_data, self.prepare_data, target, unstructured_data, unstructured_tensors, fit=True)
@@ -152,7 +150,9 @@ class Sddr(object):
                 self.net = self.net.to(self.device)
                 self._setup_optim()
                 self.cur_epoch = 0
-          
+                
+        if new_epochs:
+            self.config['train_parameters']['epochs'] = new_epochs
                 
         if freeze_parameters:
             for param in freeze_parameters:
