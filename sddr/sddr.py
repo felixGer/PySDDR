@@ -126,7 +126,9 @@ class Sddr(object):
             plot: boolean - default False
                 If true, the training loss vs epochs could be plotted
         '''
-        
+        if new_epochs:
+            self.config['train_parameters']['epochs'] = new_epochs
+            
         epoch_print_interval = max(1,int(self.config['train_parameters']['epochs']/10))
         
         if resume:
@@ -151,8 +153,6 @@ class Sddr(object):
                 self._setup_optim()
                 self.cur_epoch = 0
                 
-        if new_epochs:
-            self.config['train_parameters']['epochs'] = new_epochs
                 
         if freeze_parameters:
             for param in freeze_parameters:
