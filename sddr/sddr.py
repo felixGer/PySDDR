@@ -377,6 +377,7 @@ class Sddr(object):
         with torch.no_grad():
             #self.val_individual_NLL  = torch.index_select(self.net.get_log_loss(target).to(self.device), 0, torch.tensor(test_indices).to(self.device)).to(self.device)
             self.val_individual_NLL  = torch.index_select(self.net.get_log_loss(target).to(self.device), 0, torch.tensor(test_indices).to(self.device)).cpu().numpy()
+
             
             self.val_preds = dict()
             for param in datadict.keys():
@@ -396,7 +397,7 @@ class Sddr(object):
             self.val_MAD = sklearn.metrics.mean_absolute_error(self.val_target.flatten(), self.val_median.flatten())
             self.last_improved_epoch = epoch - self.config['train_parameters']['early_stop_epochs']
             self.last_loss =  self.epoch_val_loss
-            
+
         if plot:
             if plot == 'log':
                 plt.plot(np.log(train_loss_list), label='train')
