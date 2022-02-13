@@ -106,9 +106,11 @@ class SddrFormulaNet(nn.Module):
                 
                 Projection_Matrix = Q @ Q.T
                
-        
+                if key in  ['dnn_ts','dnn_t2' ]:
 
-                Utilde_net = self._orthog_layer(Projection_Matrix, Uhat_net)
+                    Utilde_net = self._orthog_layer(Projection_Matrix, Uhat_net)
+                else: 
+                    Utilde_net = Uhat_net
                 
                 torch.cuda.empty_cache()
                 
