@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 # torch imports
 import torch
 from torch import nn
-from torch.utils.data import DataLoader, random_split
+from torch.utils.data import DataLoader, random_split, BatchSampler,SequentialSampler
 import torch.optim as optim
 # pysddr imports
 from .sddrnetwork import SddrNet, SddrFormulaNet
@@ -18,6 +18,9 @@ from .utils.prepare_data import PrepareData
 from .utils.family import Family
 import warnings
 import copy
+import time #to delete later
+
+#BatchSampler
 
 class Sddr(object):
     '''
@@ -79,6 +82,8 @@ class Sddr(object):
         self.prepare_data = PrepareData(formulas,
                                         self.config['deep_models_dict'],
                                         self.config['train_parameters']['degrees_of_freedom'])
+        
+        print(self.prepare_data)
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         print('Using device: ', self.device)
@@ -144,12 +149,88 @@ class Sddr(object):
         n_train = len(self.dataset) - n_val
         # split the dataset randomly to train and val
         train, val = random_split(self.dataset, [n_train, n_val])  
+        
 
         # load train and val data with data loader
-        self.train_loader = DataLoader(train, 
-                                    batch_size=self.config['train_parameters']['batch_size'])
-        self.val_loader = DataLoader(val, 
-                                    batch_size=self.config['train_parameters']['batch_size'])
+        
+        def collate_pad(batch): 
+            time10 = time.time()
+            
+            if isinstance(batch, list):
+            
+                out = dict() 
+
+                #datadict
+                out['datadict'] = dict()
+                for param in self.dataset.prepared_data.keys():
+                    #print('param', param)
+                    out['datadict'][param] = dict()
+                    for structured_or_net_name in self.dataset.prepared_data[param].keys():
+                        #print('structured_or_net_name', structured_or_net_name)
+                        #print('batch', batch)
+                        #if csv than pad 
+                        #print('out[datadict]',out['datadict'])
+                    
+                        ##FIND WAY TO AUTOMATICALLY USE PROPER NAME
+                        
+                        if  structured_or_net_name != 'structured':
+                            feature_name = self.dataset.prepared_data[param][structured_or_net_name].iloc[0].index[0]
+                            if feature_name in self.dataset.unstructured_data_info.keys():
+                                feature_datatype = self.dataset.unstructured_data_info[feature_name]['datatype']
+                            
+                   
+                        
+                            
+                            
+                            #if '_ts' in structured_or_net_name:
+                            if feature_datatype== 'csv':
+                        
+                                data_as_list =[x['datadict'][param][structured_or_net_name] for x in batch]
+                                data_len = torch.LongTensor(list(map(len, data_as_list)))
+                                #out['datadict'][param][structured_or_net_name] = torch.nn.utils.rnn.pad_sequence(data_as_list, batch_first=True, padding_value=-1.0)
+                                data = torch.nn.utils.rnn.pad_sequence(data_as_list, batch_first=True, padding_value=-1.0)
+                                out['datadict'][param][structured_or_net_name]  = torch.nn.utils.rnn.pack_padded_sequence(data, data_len, batch_first=True, enforce_sorted=False)
+                                 
+                            else:
+                                out['datadict'][param][structured_or_net_name] = torch.stack([x['datadict'][param][structured_or_net_name] for x in batch])
+                        else: 
+                            out['datadict'][param][structured_or_net_name] = torch.stack([x['datadict'][param][structured_or_net_name] for x in batch])
+                        
+                            
+                        #target
+                        out['target'] = torch.stack([x['target'] for x in batch])
+            
+            else:
+                out = batch 
+            time11 = time.time()
+            print('time collate', time11 -time10)
+                        
+
+            #print(out)
+            return(out)
+        
+       # self.train_loader = DataLoader(train, 
+       #                             batch_size=self.config['train_parameters']['batch_size'],
+       #                             sampler = torch.utils.data.SequentialSampler(train),
+       #                             num_workers=self.config['train_parameters']['num_workers'])
+       # self.val_loader = DataLoader(val, 
+       #                             batch_size=self.config['train_parameters']['batch_size'],
+       #                             sampler = torch.utils.data.SequentialSampler(val),
+       #                             num_workers=self.config['train_parameters']['num_workers'])
+        if self.config['train_parameters']['Full_Batch_Training'] == True:
+            self.train_loader = BatchSampler(SequentialSampler(train), batch_size=self.config['train_parameters']['batch_size'], drop_last=False)
+            self.val_loader = BatchSampler(SequentialSampler(val), batch_size=self.config['train_parameters']['batch_size'], drop_last=False)
+            
+        else: 
+            self.train_loader = DataLoader(train, 
+                                           batch_size=self.config['train_parameters']['batch_size'],
+                                           collate_fn=collate_pad,
+                                           num_workers=self.config['train_parameters']['num_workers'])
+            self.val_loader = DataLoader(val, 
+                                         batch_size=self.config['train_parameters']['batch_size'],
+                                         collate_fn=collate_pad,
+                                         num_workers=self.config['train_parameters']['num_workers'])
+     
 
         train_loss_list = []
         val_loss_list = []
@@ -163,21 +244,37 @@ class Sddr(object):
             else:
                 eps = 0.001
         
-        print('Beginning training...')
-        if not resume :
+        print('Beginning training ...')
+        if not resume:
+
             self.P = self.prepare_data.get_penalty_matrix(self.device)
         for epoch in range(self.cur_epoch , self.config['train_parameters']['epochs']):
             self.net.train()
             self.epoch_train_loss = 0
+            
             for batch in self.train_loader:
+                time1 = time.time()
+                 #to delete
                 # for each batch
-                target = batch['target'].float().to(self.device)
-                datadict = batch['datadict']
+                #
+                if self.config['train_parameters']['Full_Batch_Training'] == True:
+                    target = train[batch]['target'].float().to(self.device)
+                    datadict =  train[batch]['datadict']
+                else: 
+                    target = batch['target'].float().to(self.device)
+                    datadict =  batch['datadict']
+                time2 = time.time()
+                
+                print('dataloading time im sec', time2 -time1 )
+                
+               
                 
                 # send each input batch to the current device
                 for param in datadict.keys():
                     for data_part in datadict[param].keys():
                         datadict[param][data_part] = datadict[param][data_part].float().to(self.device)
+                time22 = time.time()
+                print('send batch to curren devvice time', time22 -time2 )
                         
                 # get the network output
                 self.optimizer.zero_grad()
@@ -191,7 +288,8 @@ class Sddr(object):
                 loss.backward()
                 self.optimizer.step()
                 self.epoch_train_loss += loss.item()
-                
+                time3 = time.time()
+                print('time for training', time3- time2)
             # compute the avg loss over all batches in the epoch
             self.epoch_train_loss = self.epoch_train_loss/len(self.train_loader)
             if epoch % epoch_print_interval == 0:

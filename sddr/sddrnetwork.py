@@ -4,7 +4,7 @@ import numpy as np
 from torch.utils.data import Dataset, DataLoader
 import torch.optim as optim
 import pandas as pd
-
+import time #to delete
 
 ## SDDR NETWORK PART
 class SddrFormulaNet(nn.Module):
@@ -73,6 +73,7 @@ class SddrFormulaNet(nn.Module):
         """
         Utilde = Uhat - QQTUhat
         """
+    
         Projection_Matrix = Q @ Q.T
         Utilde = Uhat - Projection_Matrix @ Uhat
         
@@ -81,6 +82,8 @@ class SddrFormulaNet(nn.Module):
     
     def forward(self, datadict,training=True):
         X = datadict["structured"]
+        #print(datadict["structured"])
+        #print(datadict["structured"].shape)
         
         if self._deep_models_exist:
 
@@ -89,15 +92,23 @@ class SddrFormulaNet(nn.Module):
                 net = self.deep_models_dict[key]
                 
                 Uhat_net = net(datadict[key])
+                #print(key)
+                #print(datadict[key])
                 
                 # orthogonalize the output of the neural network with respect to the parts of the structured part,
                 # that contain the same input as the neural network
-                if len(self.orthogonalization_pattern[key]) >0:
-                    X_sliced_with_orthogonalization_pattern = torch.cat([X[:,sl] for sl in self.orthogonalization_pattern[key]],1)
-                    Q, R = torch.qr(X_sliced_with_orthogonalization_pattern)
-                    Utilde_net = self._orthog_layer(Q, Uhat_net)
-                else:
-                    Utilde_net = Uhat_net
+                #if len(self.orthogonalization_pattern[key]) >0:
+                X_sliced_with_orthogonalization_pattern = X # torch.cat([X[:,sl] for sl in self.orthogonalization_pattern[key]],1)
+                time4 = time.time() # to delete
+                Q, R = torch.qr(X_sliced_with_orthogonalization_pattern)
+                time5 = time.time() # to delete
+                print('time to compute Q,R', time5- time4)
+                Utilde_net = self._orthog_layer(Q, Uhat_net)
+                    #print(Q)
+               # else:
+                    #print('self.orthogonalization_pattern[key]')
+                    #print(self.orthogonalization_pattern[key])
+                #    Utilde_net = Uhat_net
                 
                 Utilde_list.append(Utilde_net)
             

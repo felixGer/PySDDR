@@ -1,6 +1,7 @@
 import pandas as pd
 import torch
 from torch.utils.data import Dataset
+
 from PIL import Image
 from torchvision.transforms import ToTensor
 import os
@@ -106,13 +107,26 @@ class SddrDataset(Dataset):
         #img = Image.open(os.path.join(root_path, image_path))
         img = self.transform(img)
         return img
-
+    
+    def load_csv(self, root_path, image_path):
+        csv = pd.read_csv(os.path.join(root_path, image_path)).to_numpy()
+        # next 3 lines are used to resize images to size for testing the use of alexnet
+        #img = cv2.resize(img,(227,227))
+        #img = cv2.cvtColor(img,cv2.COLOR_GRAY2RGB)
+        #img = Image.open(os.path.join(root_path, image_path))
+        
+        csv = torch.nn.Flatten(0,1)(self.transform(csv))
+        #csv = self.transform(csv)
+        return csv
+    
     def __getitem__(self,index):
         datadict = dict()
         found_unstructred = False
         for param in self.prepared_data.keys():
+            #print('param', param)
             datadict[param] = dict()
             for structured_or_net_name in self.prepared_data[param].keys():
+                #print('structured_or_net_name', structured_or_net_name)
                 unstructured_feat_list = []
                 # extract row from pandas data frame
                 if type(self.prepared_data[param][structured_or_net_name]) == torch.Tensor:
@@ -124,8 +138,11 @@ class SddrDataset(Dataset):
                     else:
                         feature_names = data_row.columns
                     for cur_feature in feature_names:
+                       # print('cur_feature', cur_feature)
                         # if there is an unstructured feature it must be read from memory so store that feature in a list
                         if cur_feature in self.unstructured_data_info.keys():
+                            #print('cur_feature', cur_feature)
+                            #print('self.unstructured_data_info.keys()', self.unstructured_data_info.keys())
                             unstructured_feat_list.append(cur_feature)
                             # for now we can only have one unstructured feature so if it is found break loop
                             break
@@ -138,10 +155,49 @@ class SddrDataset(Dataset):
                             if type(index) is int:
                                 datadict[param][structured_or_net_name] = self.load_image(root_path, data_row[cur_feature])
                             else:
+                                print('loads as batch')
                                 images = []
                                 for image_file_name in data_row[cur_feature]:
                                     images.append(self.load_image(root_path, image_file_name).unsqueeze(0))
                                 datadict[param][structured_or_net_name] = torch.cat(images)
+                                
+                        if feat_datatype == 'csv':
+                            if type(index) is int:
+                                datadict[param][structured_or_net_name] = self.load_csv(root_path, data_row[cur_feature])
+                            else:
+                                images = []
+                                for image_file_name in data_row[cur_feature]:
+                                    images.append(self.load_csv(root_path, image_file_name))
+                                    #images.append(self.load_csv(root_path, image_file_name).unsqueeze(0))
+                                    
+                                ## pad pack sequences:
+                                data = torch.nn.utils.rnn.pad_sequence(images, batch_first=True, padding_value=-1.0)
+                                
+                                data_len = torch.LongTensor(list(map(len, images)))
+                                data_packed = torch.nn.utils.rnn.pack_padded_sequence(data, data_len, batch_first=True, enforce_sorted=False)
+                                    
+                                #datadict[param][structured_or_net_name] = torch.cat(images)
+                                
+                                #print('init data struct')
+                                #print(torch.cat(images))
+                                
+                                datadict[param][structured_or_net_name] = data_packed
+                                
+                                #print('padded data')
+                                #print(data)
+                                
+                                
+                                #print('packed data')
+                                #print(data_packed)
+                                
+                                #print('re-padded data')
+                                #print(torch.nn.utils.rnn.pad_packed_sequence(data_packed, batch_first=True))
+                                
+                                
+                                
+                                
+                                #datadict[param][structured_or_net_name] = data_packed
+                                                      
                                                       
                             # extend for more cases
                         
